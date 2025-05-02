@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { Student } from './entities/student.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +13,9 @@ import { Teacher } from './entities/teacher.entity';
 import { CreateParentDto } from './dto/create-parent.dto';
 import { In } from 'typeorm';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
+import { UpdateStudentDto } from './dto/update-student.dto';
+import { UpdateParentDto } from './dto/update-parent.dto';
+import { UpdateTeacherDto } from './dto/update-teacher.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,6 +39,10 @@ export class UsersService {
         id: In(dto.parentIds),
       },
     });
+    const exists = await this.studentRepo.findOne({
+      where: { email: dto.email },
+    });
+    if (exists) throw new ConflictException('Email already in use');
     const student = this.studentRepo.create();
     Object.assign(student, dto, {
       parents,
@@ -42,6 +53,10 @@ export class UsersService {
 
   async createParent(dto: CreateParentDto): Promise<Parent> {
     const parent = this.parentRepo.create();
+    const exists = await this.parentRepo.findOne({
+      where: { email: dto.email },
+    });
+    if (exists) throw new ConflictException('Email already in use');
     Object.assign(parent, dto, {
       type: 'Parent',
     });
@@ -49,6 +64,10 @@ export class UsersService {
   }
   async createTeacher(dto: CreateTeacherDto): Promise<Teacher> {
     const teacher = this.teacherRepo.create();
+    const exists = await this.teacherRepo.findOne({
+      where: { email: dto.email },
+    });
+    if (exists) throw new ConflictException('Email already in use');
     Object.assign(teacher, dto, {
       type: 'Teacher',
     });
@@ -57,7 +76,7 @@ export class UsersService {
       where: { email: dto.email },
     });
     if (existingTeacher) {
-      throw new Error('Teacher with this email already exists');
+      throw new ConflictException('Teacher with this email already exists');
     }
     return await this.teacherRepo.save(teacher);
   }
@@ -73,5 +92,92 @@ export class UsersService {
 
   async findAllTeachers(): Promise<Teacher[]> {
     return this.teacherRepo.find();
+  }
+
+  //get user by id
+  async findStudentById(id: number): Promise<Student> {
+    const student = await this.studentRepo.findOne({
+      where: { id },
+      relations: ['parents'],
+    });
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+    return student;
+  }
+  async findParentById(id: number): Promise<Parent> {
+    const parent = await this.parentRepo.findOne({
+      where: { id },
+    });
+    if (!parent) {
+      throw new NotFoundException('Parent not found');
+    }
+    return parent;
+  }
+  async findTeacherById(id: number): Promise<Teacher> {
+    const teacher = await this.teacherRepo.findOne({
+      where: { id },
+    });
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
+    }
+    return teacher;
+  }
+  //delete user by id
+  async removeStudent(id: number): Promise<void> {
+    const student = await this.studentRepo.findOne({ where: { id } });
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+    await this.studentRepo.remove(student);
+  }
+  async removeParent(id: number): Promise<void> {
+    const parent = await this.parentRepo.findOne({ where: { id } });
+    if (!parent) {
+      throw new NotFoundException('Parent not found');
+    }
+    await this.parentRepo.remove(parent);
+  }
+  async removeTeacher(id: number): Promise<void> {
+    const teacher = await this.teacherRepo.findOne({ where: { id } });
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
+    }
+    await this.teacherRepo.remove(teacher);
+  }
+  //update user by id
+  async updateStudent(id: number, dto: UpdateStudentDto): Promise<Student> {
+    const student = await this.studentRepo.findOne({
+      where: { id },
+      relations: ['parents'], // để giữ quan hệ nếu không cập nhật
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    const parents = dto.parentIds?.length
+      ? await this.parentRepo.find({ where: { id: In(dto.parentIds) } })
+      : student.parents;
+
+    Object.assign(student, dto, { parents });
+
+    return await this.studentRepo.save(student);
+  }
+  async updateParent(id: number, dto: UpdateParentDto): Promise<Parent> {
+    const parent = await this.parentRepo.findOne({ where: { id } });
+    if (!parent) {
+      throw new NotFoundException('Parent not found');
+    }
+    Object.assign(parent, dto);
+    return await this.parentRepo.save(parent);
+  }
+  async updateTeacher(id: number, dto: UpdateTeacherDto): Promise<Teacher> {
+    const teacher = await this.teacherRepo.findOne({ where: { id } });
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
+    }
+    Object.assign(teacher, dto);
+    return await this.teacherRepo.save(teacher);
   }
 }
