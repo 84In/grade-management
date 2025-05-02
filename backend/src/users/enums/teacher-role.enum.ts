@@ -2,10 +2,11 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum TeacherRole {
-  HOMEROOM = 'HOMEROOM',
-  HEAD_OF_SUBJECT = 'HEAD_OF_SUBJECT',
-  PRINCIPAL = 'PRINCIPAL',
-  VICE_PRINCIPAL = 'VICE_PRINCIPAL',
+  HOMEROOM = 'HOMEROOM', // giáo viên chủ nhiệm
+  HEAD_OF_SUBJECT = 'HEAD_OF_SUBJECT', // trưởng bộ môn
+  PRINCIPAL = 'PRINCIPAL', // hiệu trưởng
+  VICE_PRINCIPAL = 'VICE_PRINCIPAL', // phó hiệu trưởng
+  TEACHER = 'TEACHER', // giáo viên
 }
 
 // 👇 PHẢI có đoạn này để GraphQL hiểu enum
