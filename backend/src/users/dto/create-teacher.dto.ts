@@ -11,6 +11,9 @@ export class CreateTeacherDto {
   @IsString()
   username: string;
 
+  @IsString()
+  password: string;
+
   @IsEmail()
   email: string;
 

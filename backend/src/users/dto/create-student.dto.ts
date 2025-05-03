@@ -9,6 +9,9 @@ export class CreateStudentDto {
   email: string;
 
   @IsString()
+  password: string;
+
+  @IsString()
   @IsOptional()
   phone: string;
 
