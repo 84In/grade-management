@@ -6,6 +6,10 @@ export class UpdateParentDto {
 
   @IsString()
   @IsOptional()
+  password: string;
+
+  @IsString()
+  @IsOptional()
   phone: string;
 
   @IsString()

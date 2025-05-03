@@ -16,6 +16,7 @@ import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { UpdateParentDto } from './dto/update-parent.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
+import { PasswordHelper } from 'src/common/helpers/password.helper';
 
 @Injectable()
 export class UsersService {
@@ -47,6 +48,7 @@ export class UsersService {
     Object.assign(student, dto, {
       parents,
       type: 'Student',
+      password: PasswordHelper.hashPassword(dto.password),
     });
     return await this.studentRepo.save(student);
   }
@@ -59,6 +61,7 @@ export class UsersService {
     if (exists) throw new ConflictException('Email already in use');
     Object.assign(parent, dto, {
       type: 'Parent',
+      password: PasswordHelper.hashPassword(dto.password),
     });
     return await this.parentRepo.save(parent);
   }
@@ -70,6 +73,7 @@ export class UsersService {
     if (exists) throw new ConflictException('Email already in use');
     Object.assign(teacher, dto, {
       type: 'Teacher',
+      password: PasswordHelper.hashPassword(dto.password),
     });
     // Check if the teacher already exists
     const existingTeacher = await this.teacherRepo.findOne({
@@ -156,11 +160,15 @@ export class UsersService {
       throw new NotFoundException('Student not found');
     }
 
+    const password = dto.password
+      ? await PasswordHelper.hashPassword(dto.password)
+      : student.password;
+
     const parents = dto.parentIds?.length
       ? await this.parentRepo.find({ where: { id: In(dto.parentIds) } })
       : student.parents;
 
-    Object.assign(student, dto, { parents });
+    Object.assign(student, dto, { parents, password });
 
     return await this.studentRepo.save(student);
   }
@@ -169,15 +177,72 @@ export class UsersService {
     if (!parent) {
       throw new NotFoundException('Parent not found');
     }
-    Object.assign(parent, dto);
+
+    const password = dto.password
+      ? await PasswordHelper.hashPassword(dto.password)
+      : parent.password;
+    Object.assign(parent, dto, { password });
     return await this.parentRepo.save(parent);
   }
   async updateTeacher(id: number, dto: UpdateTeacherDto): Promise<Teacher> {
-    const teacher = await this.teacherRepo.findOne({ where: { id } });
+    console.log(id);
+    const teacher = await this.teacherRepo
+      .createQueryBuilder('teacher')
+      .addSelect('teacher.password')
+      .where('teacher.id = :id', { id })
+      .getOne();
     if (!teacher) {
       throw new NotFoundException('Teacher not found');
     }
-    Object.assign(teacher, dto);
+    const password = dto.password
+      ? await PasswordHelper.hashPassword(dto.password)
+      : teacher.password;
+    Object.assign(teacher, dto, { password });
     return await this.teacherRepo.save(teacher);
+  }
+  //user login
+  async findUserByEmail(email: string): Promise<User> {
+    const user = await this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email=:email', { email })
+      .getOne();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+  async findUserById(id: number): Promise<User> {
+    const user = await this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.id=:id', { id })
+      .getOne();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+  async findUserByUsername(username: string): Promise<User> {
+    const user = await this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.username=:username', { username })
+      .getOne();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+  async findUserByPhone(phone: string): Promise<User> {
+    const user = await this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.phone=:phone', { phone })
+      .getOne();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 }
