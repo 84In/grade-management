@@ -7,6 +7,10 @@ export class UpdateStudentDto {
 
   @IsString()
   @IsOptional()
+  password: string;
+
+  @IsString()
+  @IsOptional()
   phone: string;
 
   @IsString()

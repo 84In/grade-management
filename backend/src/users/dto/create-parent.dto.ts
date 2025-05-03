@@ -5,6 +5,9 @@ export class CreateParentDto {
   username: string;
 
   @IsString()
+  password: string;
+
+  @IsString()
   @IsOptional()
   email: string;
 

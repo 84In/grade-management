@@ -18,6 +18,10 @@ export abstract class User {
   @Column({ unique: true })
   username: string;
 
+  @Field({ nullable: true })
+  @Column({ select: false })
+  password: string;
+
   @Field(() => String)
   @Column({ unique: true })
   email: string;
@@ -37,4 +41,8 @@ export abstract class User {
   @Field(() => String)
   @Column({ nullable: true })
   address: string;
+
+  @Field(() => String)
+  @Column()
+  type: string;
 }

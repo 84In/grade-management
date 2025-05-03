@@ -12,5 +12,6 @@ import { UsersResolver } from './users.resolver';
   imports: [TypeOrmModule.forFeature([User, Teacher, Student, Parent])],
   controllers: [UsersController],
   providers: [UsersService, UsersResolver],
+  exports: [UsersService],
 })
 export class UsersModule {}
