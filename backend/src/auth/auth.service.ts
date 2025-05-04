@@ -106,6 +106,7 @@ export class AuthService {
     if (!result.success) {
       throw new UnauthorizedException('Invalid token structure');
     }
+    this.logger.log(access_token);
     const { exp } = result.data;
     const expiresIn = exp - Math.floor(Date.now() / 1000);
     this.logger.log('date', Math.floor(Date.now() / 1000));
@@ -128,6 +129,6 @@ export class AuthService {
     await this.refreshTokenRepository.delete({
       expires: LessThan(new Date()),
     });
-    console.log('✅ Đã dọn dẹp các refresh token hết hạn');
+    this.logger.log('✅ Đã dọn dẹp các refresh token hết hạn');
   }
 }
