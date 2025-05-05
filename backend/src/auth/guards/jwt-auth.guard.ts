@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { TokenBlacklistService } from './token-blacklist.service';
+import { TokenBlacklistService } from '../token-blacklist.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
