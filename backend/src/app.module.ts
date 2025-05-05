@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { SubjectModule } from './subject/subject.module';
 import redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -34,6 +35,7 @@ import redisStore from 'cache-manager-redis-store';
     ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
+    SubjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],
