@@ -41,7 +41,7 @@ export class AuthService {
     const user = await this.validateUser(loginDto.username, loginDto.password);
 
     const access_token = this.jwtService.sign(
-      { sub: user.id },
+      { sub: user.id, role: user.type },
       {
         secret: jwtConstants.accessSecret,
         expiresIn: jwtConstants.accessExpiresIn,
@@ -49,7 +49,7 @@ export class AuthService {
     );
 
     const refresh_token = this.jwtService.sign(
-      { sub: user.id },
+      { sub: user.id, role: user.type },
       {
         secret: jwtConstants.refreshSecret,
         expiresIn: jwtConstants.refreshExpiresIn,
@@ -83,7 +83,7 @@ export class AuthService {
 
     const user = existing.user;
     const access_token = this.jwtService.sign(
-      { sub: user.id },
+      { sub: user.id, role: user.type },
       {
         secret: jwtConstants.accessSecret,
         expiresIn: jwtConstants.accessExpiresIn,

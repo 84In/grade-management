@@ -1,10 +1,10 @@
+import { Admin } from 'src/users/entities/admin.entity';
 import { PasswordHelper } from '../src/common/helpers/password.helper';
 
-import { User } from '../src/users/entities/user.entity';
 import { DataSource } from 'typeorm';
 
 export const createAdminUser = async (dataSource: DataSource) => {
-  const userRepo = dataSource.getRepository(User);
+  const userRepo = dataSource.getRepository(Admin);
 
   const existing = await userRepo.findOne({ where: { username: 'admin' } });
   if (existing) {
@@ -20,7 +20,7 @@ export const createAdminUser = async (dataSource: DataSource) => {
     lastname: 'Admin',
     firstname: 'System',
     address: 'N/A',
-    type: 'admin',
+    type: 'Admin',
   });
 
   await userRepo.save(admin);
